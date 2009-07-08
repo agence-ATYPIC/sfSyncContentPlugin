@@ -1,0 +1,125 @@
+= sfSyncContentPlugin =
+
+Symfony makes it easy to sync code between your development, staging and
+production servers. But what about content? Deploying content to other
+servers typically does not happen on the same schedule as the deployment
+of code. And Symfony's rsync support doesn't address the issue of
+copying databases. So if you're like me, you're sick and tired of 
+copying database dumps around during the early stages of deploying
+a site. sfSyncContentPlugin to the rescue!
+
+== Requirements ==
+
+Your project must use MySQL. This is because the code relies heavily
+on the mysqldump and mysql commands. 
+
+Your hosts must have the mysqldump and mysql commands in the PATH.
+
+Both the source and the destination should be running some flavor
+of Unix (MacOS X is fine, but watch out for mysql and mysqldump
+not being in the command line path, you may have to fix that; Linux,
+of course, works great).
+
+== Instructions ==
+
+With this plugin installed, you can synchronize your local database
+with the remote database on the staging server with the following command:
+
+    symfony project:sync-content frontend dev from prod@staging
+
+This downloads the database FROM the staging server, using the
+"prod" environment settings, and writes its contents to the database 
+associated with the local Symfony project using the "dev" environment
+settings. We accept no responsibility for the consequences
+of failure to understand the words "FROM" and "TO" or use the
+correct environment settings.
+
+You can also move your data in the opposite direction:
+
+    symfony project:sync-content frontend dev to prod@staging
+
+This copies the database from the local project (using dev
+settings) TO the staging site (using prod settings).
+
+You can specify a particular database connection if your project uses
+more than one:
+
+    symfony project:sync-content frontend dev:doctrine2 to prod@staging:doctrine2
+
+You can also copy to and from production servers, etc., etc.- if it's listed
+in config/properties.ini, you can sync content with it:
+
+    symfony project:sync-content frontend dev to prod@production
+
+You can also specify files and directories to be copied over via
+rsync at the same time. Here's a snippet of our apps/frontend/config/app.yml:
+
+    all:
+      sfSyncContent:
+        # The database is content, of course, but what else?
+        content:
+          # Almost always
+          - "web/uploads"
+          # If you use sfLucenePlugin
+          - "data/index"
+          # If you use P'unk Avenue stuff
+          - "data/pk_writable"
+          
+== About Those Pesky Password Prompts ==
+
+This task will ask for your ssh password... a lot. That's not a bug.
+However, you can make it go away by following (and understanding)
+this HOWTO:
+
+http://www.linuxproblem.org/art_9.html
+
+Obviously this is a security risk in the event the laptop you are
+syncing from should be stolen. You must IMMEDIATELY remove
+the entry for your machine from authorized_keys on the remote
+server in that situation.
+
+== What about "file not found" error messages? ==
+
+Complaints that apps/frontend/config/databases.yml was not found are
+NOT cause for worry. sfSyncContentPlugin supports separate databases
+for separate applications because some projects are set up that way.
+If it doesn't find the application version, it looks at the
+global version.
+
+== Changelog ==
+
+* Version 0.3 (not yet packaged) is the first Symfony 1.2, 
+Doctrine-and-Propel version, with a shiny new name.
+
+* Version 0.2 changes the syntax a bit to require an environment
+name for the remote Symfony site as well. This adds flexibility 
+and helps to prevent the accidental use of inappropriate database settings.
+
+== Annoyances ==
+
+"Why do I have to specify an application?" This is a feature. The content settings live in 
+app.yml. Pass frontend or whatever your main application is.
+
+"Why do I have to specify an environment?" This one is a feature too:
+different sections of app.yml can come into play depending on the environment.
+Even more important, databases.yml can also have separate dev and prod
+environment sections accessing entirely different databases, one reason
+why I now require that you explicitly specify the environment for the
+remote site as well.
+
+== Disclaimer ==
+
+This is a power tool, for grownups only. We accept NO responsibility for the 
+consequences of using this tool. If you are not backing up your databases, and
+you fail to understand the meaning of "from" or "to," don't come crying 
+to us. Seriously.
+
+That said: it's very useful. Enjoy. (:
+
+== Credits ==
+
+Tom Boutell, tom@punkave.com
+P'unk Avenue LLC, www.punkave.com
+
+Released under the MIT license. See the LICENSE file for details.
+

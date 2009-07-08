@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.5.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd  http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+ <name>sfSyncContentPlugin</name>
+ <channel>pear.symfony-project.com</channel>
+ <summary>A Symfony sync command for content (databases, uploads, etc)</summary>
+ <description>
+Symfony makes it easy to sync code between your development, staging and
+production servers. But what about content? Deploying content to other
+servers typically does not happen on the same schedule as the deployment
+of code. And Symfony's rsync support doesn't address the issue of
+copying databases. So if you're like me, you're sick and tired of
+copying database dumps around during the early stages of deploying
+a site. sfPropelSyncContentPlugin to the rescue!
+</description>
+ <lead>
+  <name>Tom Boutell</name>
+  <user>boutell</user>
+  <email>tom@punkave.com</email>
+  <active>yes</active>
+ </lead>
+ <date>2009-07-08</date>
+ <time>16:40:00</time>
+ <version>
+  <release>0.3.0</release>
+  <api>0.3.0</api>
+ </version>
+ <stability>
+  <release>beta</release>
+  <api>beta</api>
+ </stability>
+ <license uri="http://www.symfony-project.com/license">MIT license</license>
+ <notes>-</notes>
+ <contents>
+  <dir name="/">
+   <file role="data" name="README" />
+   <dir name="lib">
+    <dir name="task">
+     <file role="data" name="synccontentTask.class.php" />
+    </dir>
+   </dir>
+   <file role="data" name="LICENSE" />
+  </dir>
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.0.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.1</min>
+   </pearinstaller>
+   <package>
+    <name>symfony</name>
+    <channel>pear.symfony-project.com</channel>
+    <min>1.2.0</min>
+    <max>1.4.0</max>
+    <exclude>1.4.0</exclude>
+   </package>
+  </required>
+ </dependencies>
+ <phprelease />
+ <changelog />
+</package>
