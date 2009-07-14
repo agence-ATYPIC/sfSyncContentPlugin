@@ -338,7 +338,7 @@ EOF;
 
   function _content_sync_remote_system($pathRemote, $cmd)
   {
-    return $this->_content_sync_system(_content_sync_build_remote_cmd($pathRemote, $cmd));
+    return $this->_content_sync_system($this->_content_sync_build_remote_cmd($pathRemote, $cmd));
   }
 
   function _content_sync_system($cmd)
