@@ -157,7 +157,9 @@ EOF;
 
   function _content_sync_rsync($path1, $path2)
   {
-    $this->_content_sync_system("rsync -azC --force --delete --progress " . escapeshellarg($path1) . " " . escapeshellarg($path2));
+    // The additional options used here after -azC enhance compatibility with 
+    // setgid environments. TODO: make this configurable.
+    $this->_content_sync_system("rsync -azC --no-o --no-t --no-p --force --delete --progress " . escapeshellarg($path1) . " " . escapeshellarg($path2));
   }
 
   function _content_sync_format_db_credentials($dbData)
