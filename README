@@ -41,10 +41,10 @@ You can also move your data in the opposite direction:
 This copies the database from the local project (using dev
 settings) TO the staging site (using prod settings).
 
-You can specify a particular database connection if your project uses
-more than one:
-
-    symfony project:sync-content frontend dev:doctrine2 to prod@staging:doctrine2
+Specifying a particular database connection is no longer supported as this was
+never much tested here. However, we soon
+intend to add support for automatically transferring all of the databases rather than
+just the default one.
 
 You can also copy to and from production servers, etc., etc.- if it's listed
 in config/properties.ini, you can sync content with it:
@@ -67,7 +67,9 @@ rsync at the same time. Here's a snippet of our apps/frontend/config/app.yml:
           
 == About Those Pesky Password Prompts ==
 
-This task will ask for your ssh password... a lot. That's not a bug.
+This task will ask for your ssh password once to transfer the database
+(a big improvement over earlier versions of the plugin), and once for each
+entry in the content: section of your app.yml file. That's not a bug.
 However, you can make it go away by following (and understanding)
 this HOWTO:
 
@@ -78,15 +80,17 @@ syncing from should be stolen. You must IMMEDIATELY remove
 the entry for your machine from authorized_keys on the remote
 server in that situation.
 
-== What about "file not found" error messages? ==
-
-Complaints that apps/frontend/config/databases.yml was not found are
-NOT cause for worry. sfSyncContentPlugin supports separate databases
-for separate applications because some projects are set up that way.
-If it doesn't find the application version, it looks at the
-global version.
-
 == Changelog ==
+
+* Version 0.9 (still not yet packaged) has been rewritten to use
+sfDatabaseManager and remote dumping and loading tasks to eliminate
+extra ssh connections and allow the use of any databases.yml file
+without modification (however there is still no support for
+multiple databases or non-MySQL databases). Version 0.9 removes
+the largely untested halfhearted support for specifying a particular
+connection. If we're going to support multiple connections it should
+probably be by syncing all of them or just the default based on
+a parameter.
 
 * Version 0.3 (not yet packaged) is the first Symfony 1.2, 
 Doctrine-and-Propel version, with a shiny new name.
