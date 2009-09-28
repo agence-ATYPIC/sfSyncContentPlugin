@@ -13,6 +13,8 @@
 
 class sfSyncContentTask extends sfBaseTask
 {
+  protected $sshPort = 22;
+  
   protected function configure()
   {
     $this->addArguments(array(
@@ -104,7 +106,11 @@ EOF;
     }
     $pathLocal = '.';
     $pathRemote = $data['user'] . '@' . $data['host'] . ':' . $data['dir'];
-
+    if (isset($data['port']))
+    {
+      // Needed in multiple places least hairy this way
+      $this->sshPort = $data['port'] + 0;
+    }
     $dbDataLocal = $this->_content_sync_get_db_data($application, $pathLocal, $env, $connectionName);
     $dbDataRemote = $this->_content_sync_get_db_data($application, $pathRemote, $envRemote, $connectionNameRemote);
 
@@ -159,7 +165,9 @@ EOF;
   {
     // The additional options used here after -azC enhance compatibility with 
     // setgid environments. TODO: make this configurable.
-    $this->_content_sync_system("rsync -azC --no-o --no-t --no-p --force --delete --progress " . escapeshellarg($path1) . " " . escapeshellarg($path2));
+    
+    $port = $this->sshPort;
+    $this->_content_sync_system("rsync -e 'ssh -p $port' -azC --no-o --no-t --no-p --force --delete --progress " . escapeshellarg($path1) . " " . escapeshellarg($path2));
   }
 
   function _content_sync_format_db_credentials($dbData)
@@ -327,7 +335,8 @@ EOF;
     {
       $auth = $args[1];
       $path = $args[2];
-      $cmd = "ssh $auth " . escapeshellarg("(cd " . escapeshellarg($path) . 
+      $port = $this->sshPort;
+      $cmd = "ssh -p $port $auth " . escapeshellarg("(cd " . escapeshellarg($path) . 
         "; " . $cmd . ")");
       return $cmd;
     }
