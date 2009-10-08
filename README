@@ -15,9 +15,13 @@ on the mysqldump and mysql commands.
 
 Your hosts must have the mysqldump and mysql commands in the PATH.
 
+If your system has those commands, but under other names
+(like mysqldump5 and mysql5), you must add symbolic links or aliases
+so that they can be found under their usual names.
+
 Both the source and the destination should be running some flavor
 of Unix (MacOS X is fine, but watch out for mysql and mysqldump
-not being in the command line path, you may have to fix that; Linux,
+not being in the command line path or having alternate names, you may have to fix that; Linux,
 of course, works great).
 
 == Instructions ==
