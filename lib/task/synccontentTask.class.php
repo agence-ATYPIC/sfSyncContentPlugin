@@ -21,7 +21,7 @@ class sfSyncContentTask extends sfBaseTask
       new sfCommandArgument('application', 
         sfCommandArgument::REQUIRED, 
         'The application name ("frontend")'),
-      new sfCommandArgument('localenv', 
+      new sfCommandArgument('env', 
         sfCommandArgument::REQUIRED, 
         'The local environment ("dev")'),
       new sfCommandArgument('direction', 
@@ -89,7 +89,7 @@ EOF;
       throw new sfException("Fourth argument must be of the form environment@site example: dev@staging the site must be defined in properties.ini");
     }
 
-    if (!preg_match('/^(\w+)(:(\w+))?$/', $args['localenv'], $matches))
+    if (!preg_match('/^(\w+)(:(\w+))?$/', $args['env'], $matches))
     {
       throw new sfException("Second argument must be an environment name. Example #1: dev Example #2: prod");
     }
@@ -102,20 +102,17 @@ EOF;
       $this->sshPort = $data['port'] + 0;
     }
     
-    // Drastic simplification due to the new sfDatabaseManager-based approach and
-    // the remote dump and load tasks
-    
-    $params = sfSyncContentTools::shellDatabaseParams(sfSyncContentTools::getDatabaseParams($this->configuration));
-
+    $binary = $_SERVER['SCRIPT_FILENAME'];
+    // A further simplification: use the subsidiary tasks locally too. This resolves issues with the
+    // correct environment not being loaded and removes duplicate code
     if ($direction == 'to')
     {
-      $cmd = "mysqldump --skip-opt --add-drop-table --create-options " .
-        "--disable-keys --extended-insert --set-charset $params | " . $this->_content_sync_build_remote_cmd($pathRemote, "./symfony project:mysql-load --application=$application --env=$envRemote");
+      $cmd = "$binary project:mysql-dump --application=$application --env=$env | " . $this->_content_sync_build_remote_cmd($pathRemote, "./symfony project:mysql-load --application=$application --env=$envRemote");
       $this->_content_sync_system($cmd);
     }
     else
     {
-      $cmd = $this->_content_sync_build_remote_cmd($pathRemote, "./symfony project:mysql-dump --application=$application --env=$envRemote") . " | mysql $params "; 
+      $cmd = $this->_content_sync_build_remote_cmd($pathRemote, "./symfony project:mysql-dump --application=$application --env=$envRemote") . " | $binary project:mysql-load --application=$application --env=$env";
       $this->_content_sync_system($cmd);
     }
     
@@ -145,14 +142,6 @@ EOF;
     
     $port = $this->sshPort;
     $this->_content_sync_system("rsync -e 'ssh -p $port' -azC --no-o --no-t --no-p --force --delete --progress " . escapeshellarg($path1) . " " . escapeshellarg($path2));
-  }
-
-  function _content_sync_format_db_credentials($dbData)
-  {
-    return "--user=" . escapeshellarg($dbData['user']) . 
-      " --password=" .  escapeshellarg($dbData['password']) . 
-      " -h " . escapeshellarg($dbData['host']) .
-      " " . $dbData['database'];
   }
 
   function _content_sync_file_get_contents($path, $file)

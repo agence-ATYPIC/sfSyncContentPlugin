@@ -82,7 +82,15 @@ server in that situation.
 
 == Changelog ==
 
-* Version 0.9 (still not yet packaged) has been rewritten to use
+* Version 0.9.1 corrects a bug in version 0.9 which caused the default environment to be used
+rather than the specified environment on the local end of the connection. The correct environment
+was used on the remote end. This is a significant bug fix and you should upgrade immediately if you
+are using version 0.9.
+
+Also, the code has been refactored to reuse the mysql-load and mysql-dump tasks locally as well as
+remotely, removing redundant code and the potential for problems like the bug fix mentioned above.
+
+* Version 0.9 has been rewritten to use
 sfDatabaseManager and remote dumping and loading tasks to eliminate
 extra ssh connections and allow the use of any databases.yml file
 without modification (however there is still no support for
