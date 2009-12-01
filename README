@@ -4,9 +4,27 @@ Symfony makes it easy to sync code between your development, staging and
 production servers. But what about content? Deploying content to other
 servers typically does not happen on the same schedule as the deployment
 of code. And Symfony's rsync support doesn't address the issue of
-copying databases. So if you're like me, you're sick and tired of 
-copying database dumps around during the early stages of deploying
-a site. sfSyncContentPlugin to the rescue!
+copying databases, nor is it a good fit for data folders since they are usually not copied at the same time or in the same direction as code folders.
+
+Why would you sync data? Here at P'unk Avenue we sync data in at least four situations:
+
+1. Early in development, to push content up from a developer's local copy of a site to the staging site so coworkers and clients can see it.
+
+    ./symfony project:sync-content frontend dev to staging@staging
+
+2. Later in development, to pull content down from the staging server to reproduce bugs on a developer's computer.
+
+    ./symfony project:sync-content frontend dev from staging@staging
+
+3. At deployment time, to pull content from the staging server to the production server (this command would be run on the production server).
+
+    ./symfony project:sync-content frontend prod from staging@staging
+
+4. After deployment, to pull content back down from the production server to staging servers and development workstations in order to reproduce bugs and validate new features against real content without disturbing the production site.
+
+    ./symfony project:sync-content frontend dev from prod@production
+
+sfSyncContentPlugin can be used by itself and is also frequently used in conjunction with our [Apostrophe Content Management System](http://www.apostrophenow.com/). The philosophy of Apostrophe is that editing should be done "in context" whenever possible.
 
 == Requirements ==
 
