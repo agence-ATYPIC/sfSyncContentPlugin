@@ -87,6 +87,15 @@ rsync at the same time. Here's a snippet of our apps/frontend/config/app.yml:
           # If you use P'unk Avenue stuff
           - "data/pk_writable"
           
+== Symbolic Links ==
+
+The default behavior of rsync is to copy symbolic links themselves, not the files
+and directories they point to. By default this task does not change this, but
+the new --resolve-links option allows you to override this behavior. If your
+staging server's web/uploads folder is a symbolic link to somewhere else and
+you are syncing content down to your dev environment, you probably want to specify
+--resolve-links to copy the content and not the links.
+
 == About Those Pesky Password Prompts ==
 
 This task will ask for your ssh password once to transfer the database

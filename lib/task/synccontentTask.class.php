@@ -31,6 +31,15 @@ class sfSyncContentTask extends sfBaseTask
         sfCommandArgument::REQUIRED, 
         'The remote environment and site. The site name must be defined in properties.ini')));
 
+    $this->addOptions(array(
+      new sfCommandOption('resolve-links', null, sfCommandOption::PARAMETER_NONE, 'Copy what symlinks point to', null),
+      new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'doctrine'),
+      new sfCommandOption('application', null, sfCommandOption::PARAMETER_REQUIRED, 'The application name', 'frontend'),
+      new sfCommandOption('file', null, sfCommandOption::PARAMETER_REQUIRED, 'Your XML file of page data', null),
+      new sfCommandOption('pages', null, sfCommandOption::PARAMETER_REQUIRED, 'Directory of page xml files', null)
+      // add your own options here
+    ));
+
     $this->namespace        = 'project';
     $this->name             = 'sync-content';
     $this->briefDescription = 'Synchronize content (not code) between Symfony instances';
@@ -40,9 +49,12 @@ You must specify the application ("frontend"), local environment ("dev"), "to" o
 EOF;
   }
 
+  protected $setOptions;
+  
   protected function execute($args = array(), $options = array())
   {
-
+    $this->setOptions = $options;
+    
     /**
     * syncs your content (not code) to or from the production or staging server.
     * That means syncing two things: the database and any data folders that
@@ -141,7 +153,11 @@ EOF;
     // setgid environments. TODO: make this configurable.
     
     $port = $this->sshPort;
-    $this->_content_sync_system("rsync -e 'ssh -p $port' -azC --no-o --no-t --no-p --force --delete --progress " . escapeshellarg($path1) . " " . escapeshellarg($path2));
+    if ($this->setOptions['resolve-links'])
+    {
+      $resolve = "--copy-links";
+    }
+    $this->_content_sync_system("rsync -e 'ssh -p $port' -azC --no-o --no-t --no-p --force $resolve --delete --progress " . escapeshellarg($path1) . " " . escapeshellarg($path2));
   }
 
   function _content_sync_file_get_contents($path, $file)
