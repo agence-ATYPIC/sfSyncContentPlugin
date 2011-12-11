@@ -86,6 +86,13 @@ rsync at the same time. Here's a snippet of our apps/frontend/config/app.yml:
           - "data/index"
           # If you use P'unk Avenue stuff
           - "data/pk_writable"
+
+There is also an option to ignore specified database tables.  Call this with
+
+symfony project:sync-content frontend dev to prod@staging --ignore-tables=table1,table2
+
+The target of the sync will drop and rebuild its database in this scenario so
+that you don't trigger any 500 errors when navigating to the site.
           
 == About Those Pesky Password Prompts ==
 

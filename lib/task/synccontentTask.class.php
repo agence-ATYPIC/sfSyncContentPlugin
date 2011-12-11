@@ -31,6 +31,10 @@ class sfSyncContentTask extends sfBaseTask
         sfCommandArgument::REQUIRED, 
         'The remote environment and site. The site name must be defined in properties.ini')));
 
+    $this->addOptions(array(
+      new sfCommandOption('ignore-tables', null, sfCommandOption::PARAMETER_OPTIONAL, 'Comma-separated list of tables from the remote database to ignore'),
+    ));
+
     $this->namespace        = 'project';
     $this->name             = 'sync-content';
     $this->briefDescription = 'Synchronize content (not code) between Symfony instances';
@@ -101,18 +105,27 @@ EOF;
       // Needed in multiple places least hairy this way
       $this->sshPort = $data['port'] + 0;
     }
-    
+
+    $ignoreTables = (!empty($options['ignore-tables']))? '--ignore-tables=' . $options['ignore-tables'] : '';
     $binary = $_SERVER['SCRIPT_FILENAME'];
     // A further simplification: use the subsidiary tasks locally too. This resolves issues with the
     // correct environment not being loaded and removes duplicate code
     if ($direction == 'to')
     {
-      $cmd = "$binary project:mysql-dump --application=$application --env=$env | " . $this->_content_sync_build_remote_cmd($pathRemote, "./symfony project:mysql-load --application=$application --env=$envRemote");
+      if (!empty($options['ignore-tables']))
+      {
+        $this->_content_sync_remote_system($pathRemote, "$binary doctrine:drop-db --no-confirmation; $binary doctrine:create-db; $binary doctrine:build-sql; $binary doctrine:insert-sql;");
+      }
+      $cmd = "$binary project:mysql-dump --application=$application --env=$env $ignoreTables | " . $this->_content_sync_build_remote_cmd($pathRemote, "./symfony project:mysql-load --application=$application --env=$envRemote");
       $this->_content_sync_system($cmd);
     }
     else
     {
-      $cmd = $this->_content_sync_build_remote_cmd($pathRemote, "./symfony project:mysql-dump --application=$application --env=$envRemote") . " | $binary project:mysql-load --application=$application --env=$env";
+      if (!empty($options['ignore-tables']))
+      {
+        $this->_content_sync_system("$binary doctrine:drop-db --no-confirmation; $binary doctrine:create-db; $binary doctrine:build-sql; $binary doctrine:insert-sql;");
+      }
+      $cmd = $this->_content_sync_build_remote_cmd($pathRemote, "./symfony project:mysql-dump --application=$application --env=$envRemote $ignoreTables") . " | $binary project:mysql-load --application=$application --env=$env";
       $this->_content_sync_system($cmd);
     }
     

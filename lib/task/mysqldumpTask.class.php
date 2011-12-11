@@ -20,6 +20,7 @@ class sfMySqlDumpTask extends sfBaseTask
       new sfCommandOption('env', null, sfCommandOption::PARAMETER_REQUIRED, 'The environment', 'dev'),
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'doctrine'),
       // add your own options here
+      new sfCommandOption('ignore-tables', null, sfCommandOption::PARAMETER_OPTIONAL, 'Comma-separated list of tables from the remote database to ignore'),
     ));
 
     $this->namespace        = 'project';
@@ -40,12 +41,24 @@ EOF;
     {
       $conn = $args['connection'];
     }
-    $params = sfSyncContentTools::shellDatabaseParams(sfSyncContentTools::getDatabaseParams($this->configuration, $conn));
+    $dbparams = sfSyncContentTools::getDatabaseParams($this->configuration, $conn);
+    $params = sfSyncContentTools::shellDatabaseParams($dbparams);
+
+    // set up the ignore flag
+    $ignoreFlag = '';
+    if (isset($options['ignore-tables']) && !empty($options['ignore-tables']))
+    {
+        foreach(explode(',', $options['ignore-tables']) as $ignoreTable)
+        {
+            $ignoreFlag .= ' ' . escapeshellarg('--ignore-table=' . $dbparams['dbname'] . '.' . $ignoreTable) . ' ';
+        }
+    }
 
     // Right to stdout for the convenience of the remote ssh connection from
     // sync-content
-    system("mysqldump --skip-opt --add-drop-table --create-options " .
-      "--disable-keys --extended-insert --set-charset $params ", $result);
+    $command = "mysqldump --skip-opt --add-drop-table --create-options " .
+      "--disable-keys --extended-insert --set-charset $params $ignoreFlag";
+    system($command, $result);
     
     if ($result != 0)
     {
