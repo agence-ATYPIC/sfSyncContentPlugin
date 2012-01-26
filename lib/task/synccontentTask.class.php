@@ -17,19 +17,25 @@ class sfSyncContentTask extends sfBaseTask
   
   protected function configure()
   {
+    
     $this->addArguments(array(
       new sfCommandArgument('application', 
-        sfCommandArgument::REQUIRED, 
-        'The application name ("frontend")'),
+        sfCommandArgument::OPTIONAL, 
+        'The application name ("frontend")',
+        'frontend'),
       new sfCommandArgument('env', 
-        sfCommandArgument::REQUIRED, 
-        'The local environment ("dev")'),
+        sfCommandArgument::OPTIONAL, 
+        'The local environment ("dev")',
+        'dev'),
       new sfCommandArgument('direction', 
-        sfCommandArgument::REQUIRED, 
-        'Either "from" or "to"; when you specify "from" content is copied FROM the remote site, when you specify "to" content is copied TO the remote site'),
+        sfCommandArgument::OPTIONAL, 
+        'Either "from" or "to"; when you specify "from" content is copied FROM the remote site, when you specify "to" content is copied TO the remote site',
+        'from'),
       new sfCommandArgument('remoteenv',
-        sfCommandArgument::REQUIRED, 
-        'The remote environment and site. The site name must be defined in properties.ini')));
+        sfCommandArgument::OPTIONAL, 
+        'The remote environment and site. The site name must be defined in properties.ini',
+        'prod@production')));
+
 
     $this->addOptions(array(
       new sfCommandOption('resolve-links', null, sfCommandOption::PARAMETER_NONE, 'Copy what symlinks point to', null),
